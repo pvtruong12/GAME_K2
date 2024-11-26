@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7822201d84b1beb41b9166ee40b9a551, type: 3}
+  m_Name: DataCharController
+  m_EditorClassIdentifier: 
+  CharMoveSpeed: 5
+  attackEffectVienDan: {fileID: 5592480677380929884, guid: d805c4f8939ada543a3ebcadff40a87e, type: 3}
+  attackEffecBoom: {fileID: 6054214598441113942, guid: 43397b8c0a314d543be682430983fea8, type: 3}
+  cHPMax: 200
+  SoDan: 5
+  Sleep: 1

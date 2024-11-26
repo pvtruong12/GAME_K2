@@ -123,7 +123,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!114 &1028343394816948950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,4 +137,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getGameObject: {fileID: 0}
+  msg: {fileID: 11400000, guid: 3aeac8e8ed05d504885c817cd41c0486, type: 2}
   tocdo: 5

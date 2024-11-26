@@ -6,25 +6,25 @@ public class VienDan : MonoBehaviour
 {
     public GameObject getGameObject;
     private Rigidbody2D rb;
-    private SpriteRenderer sp;
+    public MessageVuKhi msg;
     public float tocdo = 2f;
     void Start()
     {
         Destroy(gameObject, 10f);
         rb = GetComponent<Rigidbody2D>();
-        if (getGameObject != null)
+        bool flag = getGameObject.transform.localScale.x > 0;
+        if (getGameObject == null)
+            Debug.Log("isGaneObject is null");
+        else
         {
-            sp = getGameObject.GetComponent<SpriteRenderer>();
-        }
-        tocdo = tocdo * (sp.flipX ? -1 : 1);
+            Debug.Log("Scale " + getGameObject.transform.localScale.x);
+        }    
+        tocdo = tocdo * (flag ? 1:-1);
     }
 
     void FixedUpdate()
     {
-        if (sp != null)
-        {
-            rb.velocity = new Vector3(tocdo, 0, 0);
-        }
+        rb.velocity = new Vector3(tocdo, 0, 0);
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -33,7 +33,12 @@ public class VienDan : MonoBehaviour
         {
             if(collision.CompareTag("Enemy"))
             {
-                collision.gameObject.GetComponent<MobController>().isDie(); 
+                MobController mob = collision.transform.parent.GetComponent<MobController>();
+                if (mob == null)
+                    Debug.Log("mob is null");
+                mob.TakeDame(msg.dame);
+                if (mob.hp <= 0)
+                    mob.isDie();
             }
             Destroy(gameObject);
         }

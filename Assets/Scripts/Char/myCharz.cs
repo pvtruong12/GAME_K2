@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class myCharz : MonoBehaviour
 {
-    public float MoveSpeed = 2f;
-    private bool isFlipX = true;
+    public Message dataController;
     private Rigidbody2D rd;
     private Vector2 vectorMove;
     private SpriteRenderer sp;
     private SpriteRenderer sp2;
     private Animator animator;
     public GameObject attackPos;
-    public GameObject attackEffectVienDan;
     public Vector3 vectorMoveWithMouse;
+    public int cHP;
+    private bool facingRight;
+    public Slider slider;
 
 
 
@@ -24,26 +26,37 @@ public class myCharz : MonoBehaviour
         animator = GetComponent<Animator>();
         sp2= attackPos.GetComponent<SpriteRenderer>();
         vectorMoveWithMouse = Vector3.zero;
+        cHP = dataController.cHPMax;
+        slider.maxValue = dataController.cHPMax;
     }
 
 
-    void Update()
+    void FixedUpdate()
     {
+        if(StartDie())
+        {
+            return;
+        }
         vectorMove.x = Input.GetAxisRaw("Horizontal");
         vectorMove.y = Input.GetAxisRaw("Vertical");
         vectorMove.Normalize();
+        rd.velocity = dataController.CharMoveSpeed * vectorMove;
         animator.SetBool("isRun", vectorMove.x != 0 || vectorMove.y != 0 || vectorMoveWithMouse != Vector3.zero);
         Flip();
         UpdateKeyTouchController();
         UpdateClickMouse();
         MoveToFocus();
-
+        UpdateHPChar();
 
     }
-
-    private void FixedUpdate()
+    public void UpdateHPChar()
     {
-        rd.velocity = MoveSpeed * vectorMove;
+        slider.value = cHP;
+    }
+
+    public bool StartDie()
+    {
+        return cHP <= 0;
     }
      
     public void Attack2()
@@ -62,16 +75,43 @@ public class myCharz : MonoBehaviour
         else if(Input.GetKeyDown(KeyCode.V))
         {
             animator.SetTrigger("isAttack");
-            Attack3();
+            StartCoroutine(Attack3());
+        }
+        else if(Input.GetKeyDown(KeyCode.L))
+        {
+            animator.SetTrigger("isAttack");
+            StartCoroutine(Attack4());
         }
     }
-    public void Attack3()
+    public void TakeDame(int dame)
     {
-        GameObject newBullet = Instantiate(attackEffectVienDan, transform.position, Quaternion.identity);
-        VienDan vienDan = newBullet.GetComponent<VienDan>();
-        vienDan.getGameObject = gameObject;
+        cHP -= dame;
+        if (cHP <= 0)
+        {
+            animator.SetTrigger("isMeDead");
+        }
+    }
+    public IEnumerator Attack3()
+    {
+        for(int i = 0; i< dataController.SoDan; i++)
+        {
+            GameObject newBullet = Instantiate(dataController.attackEffectVienDan, transform.position, Quaternion.identity);
+            VienDan vienDan = newBullet.GetComponent<VienDan>();
+            vienDan.getGameObject = gameObject;
+            yield return new WaitForSeconds(dataController.Sleep);
+        }
 
     }
+
+    public IEnumerator Attack4()
+    {
+        for (int i = 0; i < dataController.SoDan; i++)
+        {
+            GameObject newBullet = Instantiate(dataController.attackEffecBoom, new Vector3(UnityEngine.Random.Range(-36, 23), 16,0), Quaternion.identity);
+            yield return new WaitForSeconds(dataController.Sleep);
+        }
+    }
+
     public void UpdateClickMouse()
     {
         if(Input.GetMouseButtonDown(0))
@@ -91,7 +131,7 @@ public class myCharz : MonoBehaviour
             {
                 vectorMoveWithMouse = Vector3.zero;
             }
-            transform.position = Vector3.MoveTowards(transform.position, vectorMoveWithMouse, MoveSpeed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, vectorMoveWithMouse, dataController.CharMoveSpeed * Time.deltaTime);
         }
         
     }
@@ -101,20 +141,22 @@ public class myCharz : MonoBehaviour
         yield return new WaitForSeconds(time);
         attackPos.SetActive(false);
     }
+    void FlipX()
+    {
+        facingRight = !facingRight;
+        Vector3 theScale = transform.localScale;
+        theScale.x *= -1;
+        transform.localScale = theScale;
+    }
     public void Flip()
     {
-        float originalX = attackPos.transform.localPosition.x;
-        if (vectorMove.x > 0 || (vectorMoveWithMouse.x >= transform.position.x && vectorMoveWithMouse != Vector3.zero))
+        if ((vectorMove.x > 0 || (vectorMoveWithMouse.x >= transform.position.x && vectorMoveWithMouse != Vector3.zero)) && facingRight)
         {
-            sp.flipX = false;
-            sp2.flipX = false;
-            attackPos.transform.localPosition = new Vector3(Mathf.Abs(originalX), attackPos.transform.localPosition.y, 0);
+            FlipX();
         }
-        if (vectorMove.x < 0 || (vectorMoveWithMouse.x < transform.position.x && vectorMoveWithMouse != Vector3.zero))
+        if ((vectorMove.x < 0 || (vectorMoveWithMouse.x < transform.position.x && vectorMoveWithMouse != Vector3.zero)) && !facingRight)
         {
-            sp.flipX = true;
-            sp2.flipX = true;
-            attackPos.transform.localPosition = new Vector3(originalX < 0 ? originalX : -originalX, attackPos.transform.localPosition.y, 0);
+            FlipX();
         }
     }
 }

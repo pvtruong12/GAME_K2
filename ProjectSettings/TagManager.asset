@@ -6,6 +6,10 @@ TagManager:
   tags:
   - Enemy
   - vatcan
+  - myCharz
+  - Kiem
+  - CharChild
+  - ThanhMau
   layers:
   - Default
   - TransparentFX
