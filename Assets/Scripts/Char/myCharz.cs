@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class myCharz : MonoBehaviour
 {
@@ -16,6 +17,14 @@ public class myCharz : MonoBehaviour
     public int cHP;
     private bool facingRight;
     public Slider slider;
+    public TMP_Text LogoWinlose;
+    public TMP_Text coinNumber;
+    public GameObject getPanelGameScr;
+    public int xu = 0;
+    public AudioSource audioAttack;
+    public AudioSource audioDead;
+    public AudioSource audioPick;
+    public AudioSource audioMain;
 
 
 
@@ -28,6 +37,7 @@ public class myCharz : MonoBehaviour
         vectorMoveWithMouse = Vector3.zero;
         cHP = dataController.cHPMax;
         slider.maxValue = dataController.cHPMax;
+        coinNumber.text = "Score: "+ xu.ToString();
     }
 
 
@@ -63,6 +73,7 @@ public class myCharz : MonoBehaviour
     {
         attackPos.SetActive(true);
         StartCoroutine(DisnableObj(0.5f));
+        audioAttack.Play();
     }
 
     public void UpdateKeyTouchController()
@@ -83,18 +94,31 @@ public class myCharz : MonoBehaviour
             StartCoroutine(Attack4());
         }
     }
+    public IEnumerator StopScreen()
+    {
+        yield return new WaitForSeconds(0.7f);
+        Time.timeScale = 0;
+        LogoWinlose.text = "You Lose";
+        getPanelGameScr.SetActive(true);
+
+    }
     public void TakeDame(int dame)
     {
         cHP -= dame;
         if (cHP <= 0)
         {
             animator.SetTrigger("isMeDead");
+            StartCoroutine(StopScreen());
+            audioDead.Play();
+            audioMain.Stop();
         }
     }
     public IEnumerator Attack3()
     {
         for(int i = 0; i< dataController.SoDan; i++)
         {
+
+            audioAttack.Play();
             GameObject newBullet = Instantiate(dataController.attackEffectVienDan, transform.position, Quaternion.identity);
             VienDan vienDan = newBullet.GetComponent<VienDan>();
             vienDan.getGameObject = gameObject;

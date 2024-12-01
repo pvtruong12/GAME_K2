@@ -21,9 +21,9 @@ public class MobController : MonoBehaviour
     private GameObject CharGameObj;
     public MessageVuKhi message;
     public myCharz scriptMyChar;
-    private bool facingRight;
     public Slider slider;
     public Canvas canvas;
+    public GameObject getXuObj;
     void Start()
     { 
         CharGameObj = GameObject.FindGameObjectWithTag("myCharz");
@@ -35,7 +35,6 @@ public class MobController : MonoBehaviour
         animator = GetComponent<Animator>();
         hp = maxHp;
         RandomVector();
-        slider.value = maxHp;
         slider.maxValue = maxHp;
     }
     public void TakeDame(int dame)
@@ -54,7 +53,7 @@ public class MobController : MonoBehaviour
     {
         float KhoangMobvaChar = Vector3.Distance(CharGameObj.transform.position, transform.position);
         float KhoangcachMobdadi = Vector3.Distance(defaultVector, transform.position);
-        SetFlipX();
+        Flip();
         SetDistance(KhoangMobvaChar);
         animator.SetBool("isMobAttack", KhoangMobvaChar <= 1.5 && !scriptMyChar.StartDie() && !isDied);
         if (isMovetoLocal)
@@ -81,6 +80,7 @@ public class MobController : MonoBehaviour
                 num++;
                 if (num >= 42)
                 {
+                    scriptMyChar.audioAttack.Play();
                     num = 0;
                     scriptMyChar.TakeDame(message.dame);
                 }
@@ -95,11 +95,13 @@ public class MobController : MonoBehaviour
         sp.enabled = false;
         cc.enabled = false;
         canvas.enabled = false;
-        StartCoroutine(isLive());
+        GameObject gameObj = Instantiate(getXuObj, transform.position, Quaternion.identity);
+        StartCoroutine(isLive(gameObj));
     }
-    private IEnumerator isLive()
+    private IEnumerator isLive(GameObject game)
     {
         yield return new WaitForSeconds(5f);
+        Destroy(game);
         sp.enabled = true; 
         cc.enabled = true;
         canvas.enabled = true;
@@ -122,19 +124,16 @@ public class MobController : MonoBehaviour
             return;
         RandomVector();
     }
-    public void SetFlipX()
-    {
-        if ((rb.position - targetVector).normalized.x < 0 && facingRight)
-            Flip();
-        else if ((rb.position - targetVector).normalized.x > 0 && !facingRight)
-            Flip();
-    }
     void Flip()
     {
-        facingRight = !facingRight;
-        Vector3 theScale = transform.localScale;
-        theScale.x *= -1;
-        transform.localScale = theScale;
+        if(transform.position.x > targetVector.x)
+        {
+            sp.flipX = true;
+        }
+        else if(transform.position.x < targetVector.x)
+        {
+            sp.flipX = false;
+        }
     }
     private void RandomVector()
     {
